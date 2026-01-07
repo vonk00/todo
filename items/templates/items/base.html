@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nowpad{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'items/css/win95.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="win95-desktop">
+        <nav class="win95-taskbar">
+            <a href="{% url 'add_item' %}" class="win95-taskbar-btn {% if request.resolver_match.url_name == 'add_item' %}active{% endif %}">
+                <span class="taskbar-icon">📝</span>
+                <span class="taskbar-text">Add</span>
+            </a>
+            <a href="{% url 'organize' %}" class="win95-taskbar-btn {% if request.resolver_match.url_name == 'organize' %}active{% endif %}">
+                <span class="taskbar-icon">📋</span>
+                <span class="taskbar-text">Organize</span>
+            </a>
+        </nav>
+        
+        <main class="win95-window">
+            <div class="win95-title-bar">
+                <span class="win95-title">{% block window_title %}Nowpad{% endblock %}</span>
+                <div class="win95-title-buttons">
+                    <span class="win95-title-btn">_</span>
+                    <span class="win95-title-btn">□</span>
+                    <span class="win95-title-btn">×</span>
+                </div>
+            </div>
+            <div class="win95-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

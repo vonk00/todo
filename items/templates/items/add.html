@@ -1,0 +1,81 @@
+{% extends 'items/base.html' %}
+{% load static %}
+
+{% block title %}Add Item - Nowpad{% endblock %}
+{% block window_title %}📝 Add New Item{% endblock %}
+
+{% block content %}
+<form method="post" class="add-form" id="add-form">
+    {% csrf_token %}
+    
+    <div class="form-section form-section-main">
+        <label for="id_note" class="win95-label">Note <span class="required">*</span></label>
+        {{ form.note }}
+        {% if form.note.errors %}
+            <div class="win95-error">{{ form.note.errors.0 }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-section">
+            <label for="id_type" class="win95-label">Type</label>
+            {{ form.type }}
+        </div>
+        
+        <div class="form-section" id="action-length-section">
+            <label for="id_action_length" class="win95-label">Action Length</label>
+            {{ form.action_length }}
+        </div>
+        
+        <div class="form-section">
+            <label for="id_time_frame" class="win95-label">Time Frame</label>
+            {{ form.time_frame }}
+        </div>
+        
+        <div class="form-section">
+            <label for="id_value" class="win95-label">Value (1-5)</label>
+            {{ form.value }}
+        </div>
+        
+        <div class="form-section">
+            <label for="id_difficulty" class="win95-label">Difficulty (1-5)</label>
+            {{ form.difficulty }}
+        </div>
+        
+        <div class="form-section">
+            <label for="id_life_category" class="win95-label">Life Category</label>
+            {{ form.life_category }}
+        </div>
+        
+        <div class="form-section">
+            <label for="id_new_category" class="win95-label">New Category</label>
+            {{ form.new_category }}
+        </div>
+    </div>
+    
+    <div class="submit-bar">
+        <button type="submit" class="win95-btn win95-btn-primary">
+            ✓ Save Item
+        </button>
+    </div>
+</form>
+
+<script>
+// Show/hide action_length based on type selection
+document.getElementById('id_type').addEventListener('change', function() {
+    const actionSection = document.getElementById('action-length-section');
+    if (this.value === 'Action') {
+        actionSection.classList.remove('hidden');
+    } else {
+        actionSection.classList.add('hidden');
+        document.getElementById('id_action_length').value = '';
+    }
+});
+
+// Initial state
+if (document.getElementById('id_type').value !== 'Action') {
+    document.getElementById('action-length-section').classList.add('hidden');
+}
+</script>
+{% endblock %}
+

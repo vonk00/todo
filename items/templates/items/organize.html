@@ -1,0 +1,271 @@
+{% extends 'items/base.html' %}
+{% load static %}
+
+{% block title %}Organize - Nowpad{% endblock %}
+{% block window_title %}📋 Organize Items{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- Filters -->
+<div class="filters-bar">
+    <form method="get" class="filters-form" id="filters-form">
+        <div class="filter-group">
+            <label class="win95-label">Status</label>
+            <select name="status" class="win95-select" onchange="this.form.submit()">
+                <option value="">All</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label class="win95-label">Time Frame</label>
+            <select name="time_frame" class="win95-select" onchange="this.form.submit()">
+                <option value="">All</option>
+                {% for value, label in time_frame_choices %}
+                {% if value %}
+                <option value="{{ value }}" {% if current_time_frame == value %}selected{% endif %}>{{ label }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label class="win95-label">Type</label>
+            <select name="type" class="win95-select" onchange="this.form.submit()">
+                <option value="">All</option>
+                {% for value, label in type_choices %}
+                {% if value %}
+                <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label class="win95-label">Category</label>
+            <select name="category" class="win95-select" onchange="this.form.submit()">
+                <option value="">All</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if current_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <input type="hidden" name="sort" value="{{ current_sort }}">
+    </form>
+</div>
+
+<!-- Desktop Table View -->
+<div class="table-container desktop-view">
+    <table class="win95-table">
+        <thead>
+            <tr>
+                <th class="sortable" data-sort="note">
+                    Note
+                    {% if current_sort == 'note' %}▲{% elif current_sort == '-note' %}▼{% endif %}
+                </th>
+                <th class="sortable" data-sort="type">
+                    Type
+                    {% if current_sort == 'type' %}▲{% elif current_sort == '-type' %}▼{% endif %}
+                </th>
+                <th>Action Len</th>
+                <th class="sortable" data-sort="time_frame">
+                    Time Frame
+                    {% if current_sort == 'time_frame' %}▲{% elif current_sort == '-time_frame' %}▼{% endif %}
+                </th>
+                <th class="sortable" data-sort="value">
+                    Val
+                    {% if current_sort == 'value' %}▲{% elif current_sort == '-value' %}▼{% endif %}
+                </th>
+                <th class="sortable" data-sort="difficulty">
+                    Diff
+                    {% if current_sort == 'difficulty' %}▲{% elif current_sort == '-difficulty' %}▼{% endif %}
+                </th>
+                <th>Score</th>
+                <th>Category</th>
+                <th class="sortable" data-sort="status">
+                    Status
+                    {% if current_sort == 'status' %}▲{% elif current_sort == '-status' %}▼{% endif %}
+                </th>
+                <th class="sortable" data-sort="date_created">
+                    Created
+                    {% if current_sort == 'date_created' %}▲{% elif current_sort == '-date_created' %}▼{% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr data-item-id="{{ item.id }}">
+                <td class="cell-note">
+                    <textarea class="inline-edit win95-input" data-field="note" rows="2">{{ item.note }}</textarea>
+                </td>
+                <td>
+                    <select class="inline-edit win95-select" data-field="type">
+                        {% for value, label in type_choices %}
+                        <option value="{{ value }}" {% if item.type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td class="cell-action-length" {% if item.type != 'Action' %}style="opacity: 0.3;"{% endif %}>
+                    <select class="inline-edit win95-select" data-field="action_length" {% if item.type != 'Action' %}disabled{% endif %}>
+                        {% for value, label in action_length_choices %}
+                        <option value="{{ value }}" {% if item.action_length == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="inline-edit win95-select" data-field="time_frame">
+                        {% for value, label in time_frame_choices %}
+                        <option value="{{ value }}" {% if item.time_frame == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="inline-edit win95-select" data-field="value">
+                        {% for value, label in rating_choices %}
+                        <option value="{% if value %}{{ value }}{% endif %}" {% if item.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="inline-edit win95-select" data-field="difficulty">
+                        {% for value, label in rating_choices %}
+                        <option value="{% if value %}{{ value }}{% endif %}" {% if item.difficulty == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td class="cell-score">
+                    <span class="score-value">{% if item.score %}{{ item.score }}{% else %}—{% endif %}</span>
+                </td>
+                <td>
+                    <select class="inline-edit win95-select" data-field="life_category">
+                        <option value="">—</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if item.life_category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="inline-edit win95-select" data-field="status">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td class="cell-date">{{ item.date_created|date:"M j, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" class="empty-state">No items found. <a href="{% url 'add_item' %}">Add one?</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Mobile Card View -->
+<div class="cards-container mobile-view">
+    {% for item in items %}
+    <div class="item-card" data-item-id="{{ item.id }}">
+        <div class="card-header" onclick="toggleCard(this)">
+            <span class="card-note-preview">{{ item.note|truncatechars:60 }}</span>
+            <span class="card-expand-icon">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="card-field">
+                <label class="win95-label">Note</label>
+                <textarea class="inline-edit win95-input" data-field="note" rows="3">{{ item.note }}</textarea>
+            </div>
+            
+            <div class="card-field-row">
+                <div class="card-field">
+                    <label class="win95-label">Type</label>
+                    <select class="inline-edit win95-select" data-field="type">
+                        {% for value, label in type_choices %}
+                        <option value="{{ value }}" {% if item.type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="card-field card-action-length" {% if item.type != 'Action' %}style="display:none;"{% endif %}>
+                    <label class="win95-label">Action Len</label>
+                    <select class="inline-edit win95-select" data-field="action_length">
+                        {% for value, label in action_length_choices %}
+                        <option value="{{ value }}" {% if item.action_length == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="card-field-row">
+                <div class="card-field">
+                    <label class="win95-label">Time Frame</label>
+                    <select class="inline-edit win95-select" data-field="time_frame">
+                        {% for value, label in time_frame_choices %}
+                        <option value="{{ value }}" {% if item.time_frame == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="card-field">
+                    <label class="win95-label">Status</label>
+                    <select class="inline-edit win95-select" data-field="status">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="card-field-row">
+                <div class="card-field">
+                    <label class="win95-label">Value</label>
+                    <select class="inline-edit win95-select" data-field="value">
+                        {% for value, label in rating_choices %}
+                        <option value="{% if value %}{{ value }}{% endif %}" {% if item.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="card-field">
+                    <label class="win95-label">Difficulty</label>
+                    <select class="inline-edit win95-select" data-field="difficulty">
+                        {% for value, label in rating_choices %}
+                        <option value="{% if value %}{{ value }}{% endif %}" {% if item.difficulty == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="card-field">
+                    <label class="win95-label">Score</label>
+                    <span class="score-value win95-display">{% if item.score %}{{ item.score }}{% else %}—{% endif %}</span>
+                </div>
+            </div>
+            
+            <div class="card-field">
+                <label class="win95-label">Category</label>
+                <select class="inline-edit win95-select" data-field="life_category">
+                    <option value="">—</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if item.life_category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="card-meta">
+                Created: {{ item.date_created|date:"M j, Y g:i A" }}
+                {% if item.date_completed %}<br>Completed: {{ item.date_completed|date:"M j, Y g:i A" }}{% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">No items found. <a href="{% url 'add_item' %}">Add one?</a></div>
+    {% endfor %}
+</div>
+
+<script src="{% static 'items/js/organize.js' %}"></script>
+{% endblock %}
+
