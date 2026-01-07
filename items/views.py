@@ -25,9 +25,11 @@ def organize(request):
     """View for the Organize page with filtering and sorting."""
     # Get filter parameters
     status_filter = request.GET.get('status', 'Open')
-    time_frame_filter = request.GET.get('time_frame', '')
+    time_frame_filter = request.GET.get('time_frame', 'Today')  # Default to Today
     type_filter = request.GET.get('type', '')
     category_filter = request.GET.get('category', '')
+    value_filter = request.GET.get('value', '')
+    difficulty_filter = request.GET.get('difficulty', '')
     
     # Get sort parameter (default: newest first)
     sort_by = request.GET.get('sort', '-date_created')
@@ -35,15 +37,42 @@ def organize(request):
     # Build queryset
     items = Item.objects.all()
     
-    # Apply filters
+    # Apply filters (handle "Empty" option to find blank/null fields)
     if status_filter:
-        items = items.filter(status=status_filter)
+        if status_filter == '__empty__':
+            items = items.filter(status='')
+        else:
+            items = items.filter(status=status_filter)
+    
     if time_frame_filter:
-        items = items.filter(time_frame=time_frame_filter)
+        if time_frame_filter == '__empty__':
+            items = items.filter(time_frame='')
+        elif time_frame_filter != '__all__':  # Allow showing all if explicitly selected
+            items = items.filter(time_frame=time_frame_filter)
+    
     if type_filter:
-        items = items.filter(type=type_filter)
+        if type_filter == '__empty__':
+            items = items.filter(type='')
+        else:
+            items = items.filter(type=type_filter)
+    
     if category_filter:
-        items = items.filter(life_category_id=category_filter)
+        if category_filter == '__empty__':
+            items = items.filter(life_category__isnull=True)
+        else:
+            items = items.filter(life_category_id=category_filter)
+    
+    if value_filter:
+        if value_filter == '__empty__':
+            items = items.filter(value__isnull=True)
+        else:
+            items = items.filter(value=value_filter)
+    
+    if difficulty_filter:
+        if difficulty_filter == '__empty__':
+            items = items.filter(difficulty__isnull=True)
+        else:
+            items = items.filter(difficulty=difficulty_filter)
     
     # Apply sorting
     valid_sort_fields = [
@@ -71,6 +100,8 @@ def organize(request):
         'current_time_frame': time_frame_filter,
         'current_type': type_filter,
         'current_category': category_filter,
+        'current_value': value_filter,
+        'current_difficulty': difficulty_filter,
         'current_sort': sort_by,
         'status_choices': Item.STATUS_CHOICES,
         'time_frame_choices': Item.TIME_FRAME_CHOICES,
