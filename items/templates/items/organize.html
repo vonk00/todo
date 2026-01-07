@@ -14,10 +14,10 @@
             <label class="win95-label">Status</label>
             <select name="status" class="win95-select" onchange="this.form.submit()">
                 <option value="">All</option>
-                <option value="__empty__" {% if current_status == '__empty__' %}selected{% endif %}>⚠ Empty</option>
                 {% for value, label in status_choices %}
                 <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
+                <option value="__empty__" {% if current_status == '__empty__' %}selected{% endif %}>⚠ Empty</option>
             </select>
         </div>
         
@@ -25,12 +25,12 @@
             <label class="win95-label">Time Frame</label>
             <select name="time_frame" class="win95-select" onchange="this.form.submit()">
                 <option value="__all__" {% if current_time_frame == '__all__' %}selected{% endif %}>All</option>
-                <option value="__empty__" {% if current_time_frame == '__empty__' %}selected{% endif %}>⚠ Empty</option>
                 {% for value, label in time_frame_choices %}
                 {% if value %}
                 <option value="{{ value }}" {% if current_time_frame == value %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
+                <option value="__empty__" {% if current_time_frame == '__empty__' %}selected{% endif %}>⚠ Empty</option>
             </select>
         </div>
         
@@ -38,12 +38,12 @@
             <label class="win95-label">Type</label>
             <select name="type" class="win95-select" onchange="this.form.submit()">
                 <option value="">All</option>
-                <option value="__empty__" {% if current_type == '__empty__' %}selected{% endif %}>⚠ Empty</option>
                 {% for value, label in type_choices %}
                 {% if value %}
                 <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
+                <option value="__empty__" {% if current_type == '__empty__' %}selected{% endif %}>⚠ Empty</option>
             </select>
         </div>
         
@@ -51,10 +51,10 @@
             <label class="win95-label">Category</label>
             <select name="category" class="win95-select" onchange="this.form.submit()">
                 <option value="">All</option>
-                <option value="__empty__" {% if current_category == '__empty__' %}selected{% endif %}>⚠ Empty</option>
                 {% for cat in categories %}
                 <option value="{{ cat.id }}" {% if current_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
                 {% endfor %}
+                <option value="__empty__" {% if current_category == '__empty__' %}selected{% endif %}>⚠ Empty</option>
             </select>
         </div>
         
@@ -62,12 +62,12 @@
             <label class="win95-label">Value</label>
             <select name="value" class="win95-select" onchange="this.form.submit()">
                 <option value="">All</option>
-                <option value="__empty__" {% if current_value == '__empty__' %}selected{% endif %}>⚠ Empty</option>
                 {% for val, label in rating_choices %}
                 {% if val %}
                 <option value="{{ val }}" {% if current_value == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
+                <option value="__empty__" {% if current_value == '__empty__' %}selected{% endif %}>⚠ Empty</option>
             </select>
         </div>
         
@@ -75,12 +75,12 @@
             <label class="win95-label">Difficulty</label>
             <select name="difficulty" class="win95-select" onchange="this.form.submit()">
                 <option value="">All</option>
-                <option value="__empty__" {% if current_difficulty == '__empty__' %}selected{% endif %}>⚠ Empty</option>
                 {% for val, label in rating_choices %}
                 {% if val %}
                 <option value="{{ val }}" {% if current_difficulty == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
+                <option value="__empty__" {% if current_difficulty == '__empty__' %}selected{% endif %}>⚠ Empty</option>
             </select>
         </div>
         
