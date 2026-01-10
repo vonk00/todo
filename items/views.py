@@ -207,6 +207,7 @@ def roulette(request):
     # Get filter parameters
     type_filter = request.GET.get('type', '')
     time_frame_filters = request.GET.getlist('time_frame')
+    action_length_filters = request.GET.getlist('action_length')
     value_min = request.GET.get('value_min', '')
     value_max = request.GET.get('value_max', '')
     difficulty_min = request.GET.get('difficulty_min', '')
@@ -222,6 +223,9 @@ def roulette(request):
     
     if time_frame_filters:
         items = items.filter(time_frame__in=time_frame_filters)
+    
+    if action_length_filters:
+        items = items.filter(action_length__in=action_length_filters)
     
     if value_min:
         try:
@@ -261,12 +265,14 @@ def roulette(request):
         'matching_count': matching_count,
         'current_type': type_filter,
         'current_time_frames': time_frame_filters,
+        'current_action_lengths': action_length_filters,
         'current_value_min': value_min,
         'current_value_max': value_max,
         'current_difficulty_min': difficulty_min,
         'current_difficulty_max': difficulty_max,
         'type_choices': Item.TYPE_CHOICES,
         'time_frame_choices': Item.TIME_FRAME_CHOICES,
+        'action_length_choices': Item.ACTION_LENGTH_CHOICES,
         'rating_choices': Item.RATING_CHOICES,
         'did_roll': bool(do_roll),
     }

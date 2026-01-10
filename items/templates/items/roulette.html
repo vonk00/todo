@@ -38,6 +38,23 @@
         </div>
         
         <div class="filters-row">
+            <div class="filter-group filter-group-multi">
+                <label class="win95-label">Action Length(s)</label>
+                <div class="checkbox-group">
+                    {% for value, label in action_length_choices %}
+                    {% if value %}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="action_length" value="{{ value }}" 
+                               {% if value in current_action_lengths %}checked{% endif %}>
+                        {{ label }}
+                    </label>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="filters-row">
             <div class="filter-group">
                 <label class="win95-label">Value (min)</label>
                 <select name="value_min" class="win95-select">
@@ -106,6 +123,7 @@
                 <div class="result-note">{{ selected_item.note }}</div>
                 <div class="result-meta">
                     {% if selected_item.type %}<span class="meta-tag">{{ selected_item.type }}</span>{% endif %}
+                    {% if selected_item.action_length %}<span class="meta-tag">{{ selected_item.action_length }}</span>{% endif %}
                     {% if selected_item.time_frame %}<span class="meta-tag">{{ selected_item.time_frame }}</span>{% endif %}
                     {% if selected_item.value %}<span class="meta-tag">Value: {{ selected_item.value }}</span>{% endif %}
                     {% if selected_item.difficulty %}<span class="meta-tag">Diff: {{ selected_item.difficulty }}</span>{% endif %}
