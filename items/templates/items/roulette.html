@@ -1,0 +1,273 @@
+{% extends 'items/base.html' %}
+{% load static %}
+
+{% block title %}Roulette - Nowpad{% endblock %}
+{% block window_title %}🎲 Roulette{% endblock %}
+
+{% block content %}
+<div class="roulette-page">
+    <!-- Filters -->
+    <form method="get" class="roulette-filters" id="roulette-form">
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="win95-label">Type</label>
+                <select name="type" class="win95-select">
+                    <option value="">Any</option>
+                    {% for value, label in type_choices %}
+                    {% if value %}
+                    <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group filter-group-multi">
+                <label class="win95-label">Time Frame(s)</label>
+                <div class="checkbox-group">
+                    {% for value, label in time_frame_choices %}
+                    {% if value %}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="time_frame" value="{{ value }}" 
+                               {% if value in current_time_frames %}checked{% endif %}>
+                        {{ label }}
+                    </label>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="win95-label">Value (min)</label>
+                <select name="value_min" class="win95-select">
+                    <option value="">—</option>
+                    {% for val, label in rating_choices %}
+                    {% if val %}
+                    <option value="{{ val }}" {% if current_value_min == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="win95-label">Value (max)</label>
+                <select name="value_max" class="win95-select">
+                    <option value="">—</option>
+                    {% for val, label in rating_choices %}
+                    {% if val %}
+                    <option value="{{ val }}" {% if current_value_max == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="win95-label">Difficulty (min)</label>
+                <select name="difficulty_min" class="win95-select">
+                    <option value="">—</option>
+                    {% for val, label in rating_choices %}
+                    {% if val %}
+                    <option value="{{ val }}" {% if current_difficulty_min == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="win95-label">Difficulty (max)</label>
+                <select name="difficulty_max" class="win95-select">
+                    <option value="">—</option>
+                    {% for val, label in rating_choices %}
+                    {% if val %}
+                    <option value="{{ val }}" {% if current_difficulty_max == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="roll-section">
+            <div class="matching-count">
+                <span class="count-number">{{ matching_count }}</span> matching items
+            </div>
+            <button type="submit" name="roll" value="1" class="win95-btn win95-btn-primary roll-btn" {% if matching_count == 0 %}disabled{% endif %}>
+                🎲 Roll
+            </button>
+        </div>
+    </form>
+    
+    <!-- Result -->
+    <div class="roulette-result">
+        {% if did_roll %}
+            {% if selected_item %}
+            <div class="result-card">
+                <div class="result-header">✨ Your random pick:</div>
+                <div class="result-note">{{ selected_item.note }}</div>
+                <div class="result-meta">
+                    {% if selected_item.type %}<span class="meta-tag">{{ selected_item.type }}</span>{% endif %}
+                    {% if selected_item.time_frame %}<span class="meta-tag">{{ selected_item.time_frame }}</span>{% endif %}
+                    {% if selected_item.value %}<span class="meta-tag">Value: {{ selected_item.value }}</span>{% endif %}
+                    {% if selected_item.difficulty %}<span class="meta-tag">Diff: {{ selected_item.difficulty }}</span>{% endif %}
+                    {% if selected_item.life_category %}<span class="meta-tag">{{ selected_item.life_category.name }}</span>{% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="result-empty">
+                No matching items found. Try adjusting your filters.
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="result-placeholder">
+            Set your filters and click <strong>Roll</strong> to pick a random task!
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.roulette-page {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.roulette-filters {
+    background: var(--win95-gray-light);
+    box-shadow: var(--win95-border-sunken);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.filters-row .filter-group {
+    flex: 1;
+    min-width: 100px;
+}
+
+.filters-row .filter-group-multi {
+    flex: 3;
+    min-width: 200px;
+}
+
+.roll-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--win95-gray);
+    margin-top: 8px;
+}
+
+.matching-count {
+    font-size: 14px;
+    color: var(--win95-gray-darker);
+}
+
+.count-number {
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--win95-black);
+}
+
+.roll-btn {
+    padding: 12px 32px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.roll-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.roulette-result {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.result-placeholder {
+    text-align: center;
+    color: var(--win95-gray-dark);
+    font-size: 15px;
+    padding: 40px;
+}
+
+.result-empty {
+    text-align: center;
+    color: #aa0000;
+    font-size: 15px;
+    padding: 40px;
+    background: #ffeeee;
+    box-shadow: var(--win95-border-sunken);
+    width: 100%;
+}
+
+.result-card {
+    background: var(--win95-white);
+    box-shadow: var(--win95-border-raised);
+    padding: 20px;
+    width: 100%;
+    animation: pop-in 0.3s ease-out;
+}
+
+@keyframes pop-in {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.result-header {
+    font-size: 13px;
+    color: var(--win95-gray-dark);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-note {
+    font-size: 18px;
+    line-height: 1.5;
+    padding: 16px;
+    background: var(--win95-gray-light);
+    box-shadow: var(--win95-border-sunken);
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+}
+
+.result-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.meta-tag {
+    background: var(--win95-gray);
+    box-shadow: var(--win95-border-raised);
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+@media (max-width: 480px) {
+    .filters-row {
+        flex-direction: column;
+    }
+    
+    .roll-section {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .roll-btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+

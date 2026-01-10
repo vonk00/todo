@@ -21,17 +21,20 @@
             </select>
         </div>
         
-        <div class="filter-group">
+        <div class="filter-group filter-group-multi">
             <label class="win95-label">Time Frame</label>
-            <select name="time_frame" class="win95-select" onchange="this.form.submit()">
-                <option value="__all__" {% if current_time_frame == '__all__' %}selected{% endif %}>All</option>
+            <div class="checkbox-group">
                 {% for value, label in time_frame_choices %}
                 {% if value %}
-                <option value="{{ value }}" {% if current_time_frame == value %}selected{% endif %}>{{ label }}</option>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="time_frame" value="{{ value }}" 
+                           {% if value in current_time_frames %}checked{% endif %}
+                           onchange="this.form.submit()">
+                    {{ label }}
+                </label>
                 {% endif %}
                 {% endfor %}
-                <option value="__empty__" {% if current_time_frame == '__empty__' %}selected{% endif %}>⚠ Empty</option>
-            </select>
+            </div>
         </div>
         
         <div class="filter-group">

@@ -42,6 +42,8 @@ class Item(models.Model):
         ('Today', 'Today'),
         ('This Week', 'This Week'),
         ('This Month', 'This Month'),
+        ('3 Months', '3 Months'),
+        ('This Year', 'This Year'),
         ('Future', 'Future'),
     ]
     

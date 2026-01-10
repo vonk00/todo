@@ -19,6 +19,10 @@
                 <span class="taskbar-icon">📋</span>
                 <span class="taskbar-text">Organize</span>
             </a>
+            <a href="{% url 'roulette' %}" class="win95-taskbar-btn {% if request.resolver_match.url_name == 'roulette' %}active{% endif %}">
+                <span class="taskbar-icon">🎲</span>
+                <span class="taskbar-text">Roulette</span>
+            </a>
         </nav>
         
         <main class="win95-window">

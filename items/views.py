@@ -1,4 +1,5 @@
 import json
+import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -25,7 +26,9 @@ def organize(request):
     """View for the Organize page with filtering and sorting."""
     # Get filter parameters
     status_filter = request.GET.get('status', 'Open')
-    time_frame_filter = request.GET.get('time_frame', 'Today')  # Default to Today
+    time_frame_filters = request.GET.getlist('time_frame')  # Multiple time frames
+    if not time_frame_filters:
+        time_frame_filters = ['Today']  # Default to Today
     type_filter = request.GET.get('type', '')
     category_filter = request.GET.get('category', '')
     value_filter = request.GET.get('value', '')
@@ -44,11 +47,11 @@ def organize(request):
         else:
             items = items.filter(status=status_filter)
     
-    if time_frame_filter:
-        if time_frame_filter == '__empty__':
+    if time_frame_filters:
+        if '__empty__' in time_frame_filters:
             items = items.filter(time_frame='')
-        elif time_frame_filter != '__all__':  # Allow showing all if explicitly selected
-            items = items.filter(time_frame=time_frame_filter)
+        elif '__all__' not in time_frame_filters:
+            items = items.filter(time_frame__in=time_frame_filters)
     
     if type_filter:
         if type_filter == '__empty__':
@@ -97,7 +100,7 @@ def organize(request):
         'items': items,
         'categories': categories,
         'current_status': status_filter,
-        'current_time_frame': time_frame_filter,
+        'current_time_frames': time_frame_filters,
         'current_type': type_filter,
         'current_category': category_filter,
         'current_value': value_filter,
@@ -197,4 +200,76 @@ def get_categories(request):
     """Return all categories as JSON for dynamic dropdowns."""
     categories = list(LifeCategory.objects.values('id', 'name'))
     return JsonResponse({'categories': categories})
+
+
+def roulette(request):
+    """View for the Roulette page - randomly select an open item."""
+    # Get filter parameters
+    type_filter = request.GET.get('type', '')
+    time_frame_filters = request.GET.getlist('time_frame')
+    value_min = request.GET.get('value_min', '')
+    value_max = request.GET.get('value_max', '')
+    difficulty_min = request.GET.get('difficulty_min', '')
+    difficulty_max = request.GET.get('difficulty_max', '')
+    do_roll = request.GET.get('roll', '')
+    
+    # Build queryset - always filter by Open status
+    items = Item.objects.filter(status='Open')
+    
+    # Apply filters
+    if type_filter:
+        items = items.filter(type=type_filter)
+    
+    if time_frame_filters:
+        items = items.filter(time_frame__in=time_frame_filters)
+    
+    if value_min:
+        try:
+            items = items.filter(value__gte=int(value_min))
+        except ValueError:
+            pass
+    
+    if value_max:
+        try:
+            items = items.filter(value__lte=int(value_max))
+        except ValueError:
+            pass
+    
+    if difficulty_min:
+        try:
+            items = items.filter(difficulty__gte=int(difficulty_min))
+        except ValueError:
+            pass
+    
+    if difficulty_max:
+        try:
+            items = items.filter(difficulty__lte=int(difficulty_max))
+        except ValueError:
+            pass
+    
+    # Get matching count
+    matching_count = items.count()
+    
+    # Roll for a random item if requested
+    selected_item = None
+    if do_roll and matching_count > 0:
+        random_index = random.randint(0, matching_count - 1)
+        selected_item = items[random_index]
+    
+    context = {
+        'selected_item': selected_item,
+        'matching_count': matching_count,
+        'current_type': type_filter,
+        'current_time_frames': time_frame_filters,
+        'current_value_min': value_min,
+        'current_value_max': value_max,
+        'current_difficulty_min': difficulty_min,
+        'current_difficulty_max': difficulty_max,
+        'type_choices': Item.TYPE_CHOICES,
+        'time_frame_choices': Item.TIME_FRAME_CHOICES,
+        'rating_choices': Item.RATING_CHOICES,
+        'did_roll': bool(do_roll),
+    }
+    
+    return render(request, 'items/roulette.html', context)
 
