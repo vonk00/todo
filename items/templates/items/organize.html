@@ -10,132 +10,76 @@
 <!-- Filters -->
 <div class="filters-bar">
     <form method="get" class="filters-form" id="filters-form">
-        <div class="filter-group filter-group-multi">
+        <div class="filter-group">
             <label class="win95-label">Status</label>
-            <div class="checkbox-group">
+            <select name="status" multiple class="multi-select" size="4">
                 {% for value, label in status_choices %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="status" value="{{ value }}" 
-                           {% if value in current_statuses %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    {{ label }}
-                </label>
+                <option value="{{ value }}" {% if value in current_statuses %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="status" value="__empty__" 
-                           {% if '__empty__' in current_statuses %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    ⚠ Empty
-                </label>
-            </div>
+                <option value="__empty__" {% if '__empty__' in current_statuses %}selected{% endif %}>⚠ Empty</option>
+            </select>
         </div>
         
-        <div class="filter-group filter-group-multi">
+        <div class="filter-group">
             <label class="win95-label">Time Frame</label>
-            <div class="checkbox-group">
+            <select name="time_frame" multiple class="multi-select" size="5">
                 {% for value, label in time_frame_choices %}
                 {% if value %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="time_frame" value="{{ value }}" 
-                           {% if value in current_time_frames %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    {{ label }}
-                </label>
+                <option value="{{ value }}" {% if value in current_time_frames %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="time_frame" value="__empty__" 
-                           {% if '__empty__' in current_time_frames %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    ⚠ Empty
-                </label>
-            </div>
+                <option value="__empty__" {% if '__empty__' in current_time_frames %}selected{% endif %}>⚠ Empty</option>
+            </select>
         </div>
         
-        <div class="filter-group filter-group-multi">
+        <div class="filter-group">
             <label class="win95-label">Type</label>
-            <div class="checkbox-group">
+            <select name="type" multiple class="multi-select" size="4">
                 {% for value, label in type_choices %}
                 {% if value %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="type" value="{{ value }}" 
-                           {% if value in current_types %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    {{ label }}
-                </label>
+                <option value="{{ value }}" {% if value in current_types %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="type" value="__empty__" 
-                           {% if '__empty__' in current_types %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    ⚠ Empty
-                </label>
-            </div>
+                <option value="__empty__" {% if '__empty__' in current_types %}selected{% endif %}>⚠ Empty</option>
+            </select>
         </div>
         
-        <div class="filter-group filter-group-multi">
+        <div class="filter-group">
             <label class="win95-label">Category</label>
-            <div class="checkbox-group">
+            <select name="category" multiple class="multi-select" size="4">
                 {% for cat in categories %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="category" value="{{ cat.id }}" 
-                           {% if cat.id|stringformat:"s" in current_categories %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    {{ cat.name }}
-                </label>
+                <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" in current_categories %}selected{% endif %}>{{ cat.name }}</option>
                 {% endfor %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="category" value="__empty__" 
-                           {% if '__empty__' in current_categories %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    ⚠ Empty
-                </label>
-            </div>
+                <option value="__empty__" {% if '__empty__' in current_categories %}selected{% endif %}>⚠ Empty</option>
+            </select>
         </div>
         
-        <div class="filter-group filter-group-multi">
+        <div class="filter-group">
             <label class="win95-label">Value</label>
-            <div class="checkbox-group">
+            <select name="value" multiple class="multi-select" size="4">
                 {% for val, label in rating_choices %}
                 {% if val %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="value" value="{{ val }}" 
-                           {% if val|stringformat:"s" in current_values %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    {{ label }}
-                </label>
+                <option value="{{ val }}" {% if val|stringformat:"s" in current_values %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="value" value="__empty__" 
-                           {% if '__empty__' in current_values %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    ⚠ Empty
-                </label>
-            </div>
+                <option value="__empty__" {% if '__empty__' in current_values %}selected{% endif %}>⚠ Empty</option>
+            </select>
         </div>
         
-        <div class="filter-group filter-group-multi">
+        <div class="filter-group">
             <label class="win95-label">Difficulty</label>
-            <div class="checkbox-group">
+            <select name="difficulty" multiple class="multi-select" size="4">
                 {% for val, label in rating_choices %}
                 {% if val %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="difficulty" value="{{ val }}" 
-                           {% if val|stringformat:"s" in current_difficulties %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    {{ label }}
-                </label>
+                <option value="{{ val }}" {% if val|stringformat:"s" in current_difficulties %}selected{% endif %}>{{ label }}</option>
                 {% endif %}
                 {% endfor %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="difficulty" value="__empty__" 
-                           {% if '__empty__' in current_difficulties %}checked{% endif %}
-                           onchange="this.form.submit()">
-                    ⚠ Empty
-                </label>
-            </div>
+                <option value="__empty__" {% if '__empty__' in current_difficulties %}selected{% endif %}>⚠ Empty</option>
+            </select>
+        </div>
+        
+        <div class="filter-group filter-actions">
+            <button type="submit" class="win95-btn win95-btn-primary">Apply Filters</button>
         </div>
         
         <input type="hidden" name="sort" value="{{ current_sort }}">

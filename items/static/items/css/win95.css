@@ -300,7 +300,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    align-items: flex-start;
+    align-items: flex-end;
 }
 
 .filter-group {
@@ -314,31 +314,41 @@ body {
     min-width: 120px;
 }
 
-.filter-group-multi {
-    min-width: auto;
-}
-
-.checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 12px;
+/* Multi-select dropdowns */
+.multi-select {
+    width: 100%;
+    min-width: 130px;
+    padding: 4px;
+    font-family: var(--font-system);
+    font-size: 13px;
     background: var(--win95-white);
+    border: none;
     box-shadow: var(--win95-border-sunken);
-    padding: 6px 8px;
+    outline: none;
 }
 
-.checkbox-label {
+.multi-select:focus {
+    outline: 2px solid var(--win95-blue);
+    outline-offset: -2px;
+}
+
+.multi-select option {
+    padding: 3px 6px;
+}
+
+.multi-select option:checked {
+    background: var(--win95-blue);
+    color: white;
+}
+
+.filter-actions {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    white-space: nowrap;
+    align-items: flex-end;
+    padding-bottom: 2px;
 }
 
-.checkbox-label input[type="checkbox"] {
-    margin: 0;
-    cursor: pointer;
+.filter-actions .win95-btn-primary {
+    white-space: nowrap;
 }
 
 /* Table View (Desktop) */
