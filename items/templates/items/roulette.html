@@ -5,52 +5,42 @@
 {% block window_title %}🎲 Roulette{% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="roulette-page">
     <!-- Filters -->
     <form method="get" class="roulette-filters" id="roulette-form">
         <div class="filters-row">
             <div class="filter-group">
                 <label class="win95-label">Type</label>
-                <select name="type" class="win95-select">
-                    <option value="">Any</option>
+                <select name="type" multiple class="multi-select" size="4">
                     {% for value, label in type_choices %}
                     {% if value %}
-                    <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>{{ label }}</option>
+                    <option value="{{ value }}" {% if value in current_types %}selected{% endif %}>{{ label }}</option>
                     {% endif %}
                     {% endfor %}
                 </select>
             </div>
             
-            <div class="filter-group filter-group-multi">
-                <label class="win95-label">Time Frame(s)</label>
-                <div class="checkbox-group">
+            <div class="filter-group">
+                <label class="win95-label">Time Frame</label>
+                <select name="time_frame" multiple class="multi-select" size="5">
                     {% for value, label in time_frame_choices %}
                     {% if value %}
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="time_frame" value="{{ value }}" 
-                               {% if value in current_time_frames %}checked{% endif %}>
-                        {{ label }}
-                    </label>
+                    <option value="{{ value }}" {% if value in current_time_frames %}selected{% endif %}>{{ label }}</option>
                     {% endif %}
                     {% endfor %}
-                </div>
+                </select>
             </div>
-        </div>
-        
-        <div class="filters-row">
-            <div class="filter-group filter-group-multi">
-                <label class="win95-label">Action Length(s)</label>
-                <div class="checkbox-group">
+            
+            <div class="filter-group">
+                <label class="win95-label">Action Length</label>
+                <select name="action_length" multiple class="multi-select" size="4">
                     {% for value, label in action_length_choices %}
                     {% if value %}
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="action_length" value="{{ value }}" 
-                               {% if value in current_action_lengths %}checked{% endif %}>
-                        {{ label }}
-                    </label>
+                    <option value="{{ value }}" {% if value in current_action_lengths %}selected{% endif %}>{{ label }}</option>
                     {% endif %}
                     {% endfor %}
-                </div>
+                </select>
             </div>
         </div>
         
@@ -118,7 +108,7 @@
     <div class="roulette-result">
         {% if did_roll %}
             {% if selected_item %}
-            <div class="result-card">
+            <div class="result-card" id="result-card" data-item-id="{{ selected_item.id }}">
                 <div class="result-header">✨ Your random pick:</div>
                 <div class="result-note">{{ selected_item.note }}</div>
                 <div class="result-meta">
@@ -128,6 +118,11 @@
                     {% if selected_item.value %}<span class="meta-tag">Value: {{ selected_item.value }}</span>{% endif %}
                     {% if selected_item.difficulty %}<span class="meta-tag">Diff: {{ selected_item.difficulty }}</span>{% endif %}
                     {% if selected_item.life_category %}<span class="meta-tag">{{ selected_item.life_category.name }}</span>{% endif %}
+                </div>
+                <div class="result-actions">
+                    <button type="button" class="win95-btn win95-btn-primary complete-btn" onclick="markComplete({{ selected_item.id }})">
+                        ✓ Mark Completed
+                    </button>
                 </div>
             </div>
             {% else %}
@@ -143,9 +138,45 @@
     </div>
 </div>
 
+<script>
+function markComplete(itemId) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`/x9K3pQ7v2/api/item/${itemId}/update/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            field: 'status',
+            value: 'Complete'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const card = document.getElementById('result-card');
+            card.classList.add('completed');
+            card.innerHTML = `
+                <div class="result-header">✅ Completed!</div>
+                <div class="result-note">${data.item.note}</div>
+                <div class="completed-message">Great job! This item has been marked as complete.</div>
+            `;
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error marking item complete');
+        console.error(error);
+    });
+}
+</script>
+
 <style>
 .roulette-page {
-    max-width: 700px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -161,16 +192,12 @@
     flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 12px;
+    align-items: flex-end;
 }
 
 .filters-row .filter-group {
     flex: 1;
-    min-width: 100px;
-}
-
-.filters-row .filter-group-multi {
-    flex: 3;
-    min-width: 200px;
+    min-width: 120px;
 }
 
 .roll-section {
@@ -236,6 +263,10 @@
     animation: pop-in 0.3s ease-out;
 }
 
+.result-card.completed {
+    background: #e8ffe8;
+}
+
 @keyframes pop-in {
     0% { transform: scale(0.9); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
@@ -263,6 +294,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 16px;
 }
 
 .meta-tag {
@@ -270,6 +302,31 @@
     box-shadow: var(--win95-border-raised);
     padding: 4px 10px;
     font-size: 12px;
+}
+
+.result-actions {
+    padding-top: 16px;
+    border-top: 1px solid var(--win95-gray);
+}
+
+.complete-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: bold;
+    background: #90EE90;
+}
+
+.complete-btn:hover {
+    background: #7CDC7C;
+}
+
+.completed-message {
+    color: #006600;
+    font-size: 14px;
+    padding: 12px;
+    background: #d4ffd4;
+    box-shadow: var(--win95-border-sunken);
+    text-align: center;
 }
 
 @media (max-width: 480px) {
@@ -283,6 +340,10 @@
     }
     
     .roll-btn {
+        width: 100%;
+    }
+    
+    .complete-btn {
         width: 100%;
     }
 }

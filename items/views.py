@@ -233,8 +233,8 @@ def get_categories(request):
 
 def roulette(request):
     """View for the Roulette page - randomly select an open item."""
-    # Get filter parameters
-    type_filter = request.GET.get('type', '')
+    # Get filter parameters (all multi-select)
+    type_filters = request.GET.getlist('type')
     time_frame_filters = request.GET.getlist('time_frame')
     action_length_filters = request.GET.getlist('action_length')
     value_min = request.GET.get('value_min', '')
@@ -247,8 +247,8 @@ def roulette(request):
     items = Item.objects.filter(status='Open')
     
     # Apply filters
-    if type_filter:
-        items = items.filter(type=type_filter)
+    if type_filters:
+        items = items.filter(type__in=type_filters)
     
     if time_frame_filters:
         items = items.filter(time_frame__in=time_frame_filters)
@@ -292,7 +292,7 @@ def roulette(request):
     context = {
         'selected_item': selected_item,
         'matching_count': matching_count,
-        'current_type': type_filter,
+        'current_types': type_filters,
         'current_time_frames': time_frame_filters,
         'current_action_lengths': action_length_filters,
         'current_value_min': value_min,
