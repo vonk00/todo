@@ -24,15 +24,21 @@ def add_item(request):
 
 def organize(request):
     """View for the Organize page with filtering and sorting."""
-    # Get filter parameters
-    status_filter = request.GET.get('status', 'Open')
-    time_frame_filters = request.GET.getlist('time_frame')  # Multiple time frames
+    from django.db.models import Q
+    
+    # Get filter parameters (all multi-select)
+    status_filters = request.GET.getlist('status')
+    if not status_filters:
+        status_filters = ['Open']  # Default to Open
+    
+    time_frame_filters = request.GET.getlist('time_frame')
     if not time_frame_filters:
         time_frame_filters = ['Today']  # Default to Today
-    type_filter = request.GET.get('type', '')
-    category_filter = request.GET.get('category', '')
-    value_filter = request.GET.get('value', '')
-    difficulty_filter = request.GET.get('difficulty', '')
+    
+    type_filters = request.GET.getlist('type')
+    category_filters = request.GET.getlist('category')
+    value_filters = request.GET.getlist('value')
+    difficulty_filters = request.GET.getlist('difficulty')
     
     # Get sort parameter (default: newest first)
     sort_by = request.GET.get('sort', '-date_created')
@@ -40,42 +46,65 @@ def organize(request):
     # Build queryset
     items = Item.objects.all()
     
-    # Apply filters (handle "Empty" option to find blank/null fields)
-    if status_filter:
-        if status_filter == '__empty__':
-            items = items.filter(status='')
-        else:
-            items = items.filter(status=status_filter)
+    # Apply status filter
+    if status_filters:
+        status_q = Q()
+        regular_statuses = [s for s in status_filters if s != '__empty__']
+        if regular_statuses:
+            status_q |= Q(status__in=regular_statuses)
+        if '__empty__' in status_filters:
+            status_q |= Q(status='')
+        items = items.filter(status_q)
     
+    # Apply time frame filter
     if time_frame_filters:
+        tf_q = Q()
+        regular_tfs = [tf for tf in time_frame_filters if tf != '__empty__']
+        if regular_tfs:
+            tf_q |= Q(time_frame__in=regular_tfs)
         if '__empty__' in time_frame_filters:
-            items = items.filter(time_frame='')
-        elif '__all__' not in time_frame_filters:
-            items = items.filter(time_frame__in=time_frame_filters)
+            tf_q |= Q(time_frame='')
+        items = items.filter(tf_q)
     
-    if type_filter:
-        if type_filter == '__empty__':
-            items = items.filter(type='')
-        else:
-            items = items.filter(type=type_filter)
+    # Apply type filter
+    if type_filters:
+        type_q = Q()
+        regular_types = [t for t in type_filters if t != '__empty__']
+        if regular_types:
+            type_q |= Q(type__in=regular_types)
+        if '__empty__' in type_filters:
+            type_q |= Q(type='')
+        items = items.filter(type_q)
     
-    if category_filter:
-        if category_filter == '__empty__':
-            items = items.filter(life_category__isnull=True)
-        else:
-            items = items.filter(life_category_id=category_filter)
+    # Apply category filter
+    if category_filters:
+        cat_q = Q()
+        regular_cats = [c for c in category_filters if c != '__empty__']
+        if regular_cats:
+            cat_q |= Q(life_category_id__in=regular_cats)
+        if '__empty__' in category_filters:
+            cat_q |= Q(life_category__isnull=True)
+        items = items.filter(cat_q)
     
-    if value_filter:
-        if value_filter == '__empty__':
-            items = items.filter(value__isnull=True)
-        else:
-            items = items.filter(value=value_filter)
+    # Apply value filter
+    if value_filters:
+        val_q = Q()
+        regular_vals = [v for v in value_filters if v != '__empty__']
+        if regular_vals:
+            val_q |= Q(value__in=[int(v) for v in regular_vals])
+        if '__empty__' in value_filters:
+            val_q |= Q(value__isnull=True)
+        items = items.filter(val_q)
     
-    if difficulty_filter:
-        if difficulty_filter == '__empty__':
-            items = items.filter(difficulty__isnull=True)
-        else:
-            items = items.filter(difficulty=difficulty_filter)
+    # Apply difficulty filter
+    if difficulty_filters:
+        diff_q = Q()
+        regular_diffs = [d for d in difficulty_filters if d != '__empty__']
+        if regular_diffs:
+            diff_q |= Q(difficulty__in=[int(d) for d in regular_diffs])
+        if '__empty__' in difficulty_filters:
+            diff_q |= Q(difficulty__isnull=True)
+        items = items.filter(diff_q)
     
     # Apply sorting
     valid_sort_fields = [
@@ -99,12 +128,12 @@ def organize(request):
     context = {
         'items': items,
         'categories': categories,
-        'current_status': status_filter,
+        'current_statuses': status_filters,
         'current_time_frames': time_frame_filters,
-        'current_type': type_filter,
-        'current_category': category_filter,
-        'current_value': value_filter,
-        'current_difficulty': difficulty_filter,
+        'current_types': type_filters,
+        'current_categories': category_filters,
+        'current_values': value_filters,
+        'current_difficulties': difficulty_filters,
         'current_sort': sort_by,
         'status_choices': Item.STATUS_CHOICES,
         'time_frame_choices': Item.TIME_FRAME_CHOICES,

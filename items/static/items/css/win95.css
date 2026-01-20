@@ -300,7 +300,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 
 .filter-group {
